@@ -163,112 +163,7 @@
       );
     };
 
-    const INITIAL_WORDS = [
-      {
-        id: "seed_1",
-        kanji: "把握",
-        furigana: "はあく",
-        romaji: "haaku",
-        meaning_kr: "파악 (상황을 정확히 이해함)",
-        meaning_en: "Grasp, understanding, comprehension",
-        pos: "JLPT N2 명사/동사",
-        example_jp: "現状を正確に把握することが成功への第一歩だ。",
-        example_kr: "현황을 정확히 파악하는 것이 성공으로 가는 첫걸음이다.",
-        category: "JLPT N2",
-        mastery: 0
-      },
-      {
-        id: "seed_2",
-        kanji: "迅速",
-        furigana: "じんそく",
-        romaji: "jinsoku",
-        meaning_kr: "신속 (매우 빠름)",
-        meaning_en: "Quickness, promptness, dispatch",
-        pos: "JLPT N2 형용동사",
-        example_jp: "災害時には迅速な対応が強く求められる。",
-        example_kr: "재해 시에는 신속한 대응이 강력히 요구된다.",
-        category: "JLPT N2",
-        mastery: 0
-      },
-      {
-        id: "seed_3",
-        kanji: "慎重",
-        furigana: "しんちょう",
-        romaji: "shinchou",
-        meaning_kr: "신중 (조심스러움)",
-        meaning_en: "Discretion, prudence, caution",
-        pos: "JLPT N2 형용동사",
-        example_jp: "重大な決定を下す前に慎重に検討を重ねる。",
-        example_kr: "중대한 결정은 내리기 전에 신중하게 검토를 거듭한다.",
-        category: "JLPT N2",
-        mastery: 0
-      },
-      {
-        id: "seed_4",
-        kanji: "普及",
-        furigana: "ふきゅう",
-        romaji: "fukyuu",
-        meaning_kr: "보급 (널리 퍼짐)",
-        meaning_en: "Diffusion, spread, popularization",
-        pos: "JLPT N2 명사/동사",
-        example_jp: "スマートフォンとAI技術の普及が急速に進んでいる。",
-        example_kr: "스마트폰과 AI 기술의 보급이 급속히 진행되고 있다.",
-        category: "JLPT N2",
-        mastery: 0
-      },
-      {
-        id: "seed_5",
-        kanji: "矛盾",
-        furigana: "むじゅん",
-        romaji: "mujun",
-        meaning_kr: "모순 (앞뒤가 맞지 않음)",
-        meaning_en: "Contradiction, inconsistency",
-        pos: "JLPT N2 명사/동사",
-        example_jp: "彼の発言には多くの矛盾が含まれている。",
-        example_kr: "그의 발언에는 많은 모순이 포함되어 있다.",
-        category: "JLPT N2",
-        mastery: 0
-      },
-      {
-        id: "seed_6",
-        kanji: "妥協",
-        furigana: "だきょう",
-        romaji: "dakyou",
-        meaning_kr: "타협 (서로 양보하여 협의함)",
-        meaning_en: "Compromise, mutual concession",
-        pos: "JLPT N2 명사/동사",
-        example_jp: "両者は互いに妥協点を見出し合意に至った。",
-        example_kr: "양측은 서로 타협점을 찾아 합의에 이르렀다.",
-        category: "JLPT N2",
-        mastery: 0
-      },
-      {
-        id: "seed_7",
-        kanji: "契機",
-        furigana: "けいき",
-        romaji: "keiki",
-        meaning_kr: "계기 (변화의 정황/기회)",
-        meaning_en: "Opportunity, chance, turning point",
-        pos: "JLPT N2 명사",
-        example_jp: "この失敗を契機として生活習慣を全面的に見直す。",
-        example_kr: "이 실패를 계기로 생활 습관을 전면적으로 되돌아본다.",
-        category: "JLPT N2",
-        mastery: 0
-      },
-      {
-        id: "seed_8",
-        kanji: "克服",
-        furigana: "こくふく",
-        romaji: "kokufuku",
-        meaning_kr: "극복 (어려움을 이겨냄)",
-        meaning_en: "Overcoming, mastering a hardship",
-        pos: "JLPT N2 명사/동사",
-        example_jp: "試練を克服して大きな成長を遂げることができた。",
-        example_kr: "시련을 극복하고 큰 성장을 이뤄낼 수 있었다.",
-        category: "JLPT N2",
-        mastery: 0
-      }
-    ];
+    const INITIAL_WORDS = [];
 
     const translateToKorean = async (englishText) => {
       if (!englishText || typeof englishText !== 'string') return "뜻 정보 없음";
@@ -296,7 +191,10 @@
           const saved = localStorage.getItem('jlpt_n2_words');
           if (saved) {
             const parsed = JSON.parse(saved);
-            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            if (Array.isArray(parsed)) {
+              const cleaned = parsed.filter(w => !String(w?.id || '').startsWith('seed_'));
+              if (cleaned.length > 0) return cleaned;
+            }
           }
         } catch (e) {
           console.error("Failed to load words from localStorage", e);
@@ -307,9 +205,10 @@
       const [savedWordIds, setSavedWordIds] = useState(() => {
         try {
           const saved = localStorage.getItem('jlpt_n2_bookmarks');
-          return saved ? JSON.parse(saved) : ["seed_1", "seed_2"];
+          const parsed = saved ? JSON.parse(saved) : [];
+          return Array.isArray(parsed) ? parsed.filter(id => !String(id).startsWith('seed_')) : [];
         } catch (e) {
-          return ["seed_1", "seed_2"];
+          return [];
         }
       });
 
@@ -321,9 +220,7 @@
             if (Array.isArray(parsed) && parsed.length > 0) return parsed;
           }
         } catch (e) {}
-        return [
-          { id: "set_default_1", name: "⭐ 핵심 어휘 모음", wordIds: ["seed_1", "seed_2", "seed_3"], color: "from-indigo-500 to-purple-600" }
-        ];
+        return [];
       });
 
       const [currentTab, setCurrentTab] = useState('flashcards');
@@ -361,12 +258,12 @@
         localStorage.removeItem('jlpt_n2_words');
         localStorage.removeItem('jlpt_n2_bookmarks');
         localStorage.removeItem('jlpt_n2_sets');
-        setWords(INITIAL_WORDS);
-        setSavedWordIds(["seed_1", "seed_2"]);
-        setWordSets([{ id: "set_default_1", name: "⭐ 핵심 어휘 모음", wordIds: ["seed_1", "seed_2"], color: "from-indigo-500 to-purple-600" }]);
+        setWords([]);
+        setSavedWordIds([]);
+        setWordSets([]);
         setActiveSetFilter('all');
         setShowResetModal(false);
-        showToast("초기 필수 데이터베이스 상태로 복원되었습니다.");
+        showToast("모든 단어 데이터가 초기화되었습니다. 단어 생성을 눌러 시작하세요.");
       };
 
       const toggleBookmark = (id) => {
@@ -800,9 +697,9 @@
               <Icon name="github" className="w-8 h-8" />
             </div>
             <div className="space-y-2 min-w-0">
-              <h3 className="text-xl font-bold text-white break-words">학습할 단어가 존재하지 않습니다.</h3>
+              <h3 className="text-xl font-bold text-white break-words">아직 생성된 단어가 없습니다.</h3>
               <p className="text-xs text-slate-400 max-w-md mx-auto break-words">
-                아래 버튼을 눌러 GitHub API에서 JLPT N2 단어를 추가로 수집해 보세요!
+                아래의 <span className="text-indigo-300 font-semibold">단어 생성</span> 버튼을 눌러 JLPT N2 단어를 가져와 학습을 시작해 보세요.
               </p>
             </div>
             <button
@@ -815,7 +712,7 @@
               ) : (
                 <>
                   <Icon name="sparkles" className="w-4 h-4 shrink-0" />
-                  <span>API에서 N2 단어 가져오기</span>
+                  <span>단어 생성</span>
                 </>
               )}
             </button>
