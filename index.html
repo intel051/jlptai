@@ -37,6 +37,10 @@
     .min-w-0 {
       min-width: 0 !important;
     }
+
+    .word-kanji {
+      font-family: 'Pretendard JP', 'Pretendard', sans-serif !important;
+    }
     
     .custom-card-scroll {
       max-height: 220px;
@@ -685,10 +689,13 @@
       const [currentIndex, setCurrentIndex] = useState(0);
       const [isFlipped, setIsFlipped] = useState(false);
 
+      // Reset only when the actual card list changes (add/remove/reorder),
+      // not when a card's mastery value is updated.
+      const wordListKey = useMemo(() => words.map(w => w.id).join('|'), [words]);
       useEffect(() => {
-        setCurrentIndex(0);
+        setCurrentIndex(prev => Math.min(prev, Math.max(0, words.length - 1)));
         setIsFlipped(false);
-      }, [words]);
+      }, [wordListKey]);
 
       if (!words || words.length === 0) {
         return (
@@ -792,7 +799,7 @@
                   <div className="text-slate-400 text-xs md:text-sm font-medium tracking-wide break-jp">
                     {currentWord.furigana} {currentWord.romaji ? `(${currentWord.romaji})` : ''}
                   </div>
-                  <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white font-sans break-jp leading-tight">
+                  <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white break-jp leading-tight word-kanji">
                     {currentWord.kanji}
                   </h2>
                   <div className="pt-2 min-w-0">
